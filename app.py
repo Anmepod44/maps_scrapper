@@ -38,7 +38,14 @@ try:
         # Find elements with the specified attribute
         elements = driver.find_elements(By.XPATH, '//*[@data-test-id="category-store-card"]')
         count = len(elements)
-        print(f"Page {page}: Found {count} elements")
+
+        for element in elements:
+            try:
+                store_name = element.find_element(By.XPATH, './/*[@data-test-id="store-card-title"]')
+                print(store_name.text)
+            except Exception as e:
+                print(f"Error accessing store name: {e}")
+                print(f"Page {page}: Found {count} elements")
         
         # Add to total count
         total_count += count
