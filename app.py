@@ -1,53 +1,52 @@
-import json
-import random
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import time
+import requests
 
-# Load the JSON data
-file_path = '/mnt/data/kenyan_meals_numbers_costs_500.json'
-with open(file_path, 'r') as file:
-    data = json.load(file)
+# Set up undetected ChromeDriver
+options = Options()
+# Uncomment below for headless mode if needed
+# options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-blink-features=AutomationControlled")  # Reduces detection
+options.add_argument("--disable-infobars")
+options.add_argument("--disable-extensions")
 
-def meal_planner():
-    # Collect user preferences via CLI
-    try:
-        budget = int(input("Enter your budget (max cost per meal in Ksh): "))
-        meal_types = input("Enter preferred meal types (comma-separated, e.g., Breakfast, Snack): ").split(",")
-        dietary_restrictions = input("Enter dietary restrictions (comma-separated, e.g., Dairy Free, Gluten Free): ").split(",")
-        max_calories = int(input("Enter maximum calories per meal: "))
-        difficulty = input("Enter preferred cooking difficulty (Easy, Medium, Hard): ")
+# Start undetected ChromeDriver
+driver = uc.Chrome(options=options)
 
-        # Clean inputs
-        meal_types = [meal.strip() for meal in meal_types]
-        dietary_restrictions = [restriction.strip() for restriction in dietary_restrictions]
+try:
+    # Base URL for the first page
+    base_url = "https://glovoapp.com/ke/en/nairobi/food_1/"
+    page = 1
+    total_count = 0  # To keep track of total elements across all pages
 
-        # Filter meals based on user preferences
-        filtered_meals = [
-            meal for meal in data
-            if meal.get("Cost") and int(meal["Cost"].replace("Ksh ", "")) <= budget
-            and meal.get("Meal Type") in meal_types
-            and all(tag in meal.get("Dietary Tags", []) for tag in dietary_restrictions)
-            and meal.get("Calories") and meal["Calories"] <= max_calories
-            and meal.get("Difficulty") == difficulty
-        ]
+    while True:
+        # Use base URL for the first page, then add `?page=n` for subsequent pages
+        url = base_url if page == 1 else f"{base_url}?page={page}"
         
-        # Randomly select three meals from the filtered list
-        recommended_meals = random.sample(filtered_meals, min(len(filtered_meals), 3))
+        # Check for HTTP 400 error
+        response = requests.get(url)
+        if response.status_code == 400:
+            print(f"Encountered 400 error on page {page}. Stopping.")
+            break
+        driver.get(url)
+        time.sleep(5)  # Allow the page to load
         
-        # Display the recommendations
-        if recommended_meals:
-            print("\nHere are your meal recommendations:\n")
-            for meal in recommended_meals:
-                print(f"Name: {meal['Kenyan Name']}")
-                print(f"Type: {meal['Meal Type']}")
-                print(f"Calories: {meal['Calories']} kcal")
-                print(f"Cost: {meal['Cost']}")
-                print(f"Difficulty: {meal['Difficulty']}")
-                print(f"Dietary Tags: {', '.join(meal.get('Dietary Tags', []))}")
-                print(f"Ingredients: {', '.join(meal['Ingredients'])}")
-                print("-" * 50)
-        else:
-            print("\nNo meals match your preferences. Try adjusting your criteria.")
-    except ValueError:
-        print("\nInvalid input. Please ensure numerical inputs for budget and calories.")
+        # Find elements with the specified attribute
+        elements = driver.find_elements(By.XPATH, '//*[@data-test-id="category-store-card"]')
+        count = len(elements)
+        print(f"Page {page}: Found {count} elements")
+        
+        # Add to total count
+        total_count += count
+        
+        # Move to the next page
+        page += 1
 
-if __name__ == "__main__":
-    meal_planner()
+    print(f"Total elements across all pages: {total_count}")
+
+finally:
+    driver.quit()
