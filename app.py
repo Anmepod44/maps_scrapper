@@ -1,6 +1,8 @@
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import requests
 
@@ -42,7 +44,25 @@ try:
         for element in elements:
             try:
                 store_name = element.find_element(By.XPATH, './/*[@data-test-id="store-card-title"]')
-                print(store_name.text)
+                name=store_name.text
+
+                #Click on that area.
+                # Wait for the nested element to be clickable
+                nested_element = WebDriverWait(element, 10).until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, "store-card__content"))
+                )
+                nested_element.click()
+                time.sleep(5)
+
+                # Wait for the new page to load (you can adjust this as needed)
+                time.sleep(5)
+
+                # Go back to the previous page
+                driver.back()
+
+                # Wait for the page to reload before continuing
+                time.sleep(5)
+                print(f"Clicked on: {store_name.text}")
             except Exception as e:
                 print(f"Error accessing store name: {e}")
                 print(f"Page {page}: Found {count} elements")
