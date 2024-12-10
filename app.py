@@ -53,6 +53,21 @@ try:
                 )
                 nested_element.click()
                 time.sleep(5)
+                
+                #Get the master container
+                master_container = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="default-wrapper"]/div/div/div/section[1]/div[2]/div[2]/div[3]/div[3]/div/div[1]'))
+                )
+
+                #Get the store elements content : nested in the master container
+                nested_elements = master_container.find_elements(By.XPATH, './/div[@data-test-id="store-content"]')
+
+                for element in nested_elements:
+                    list_containers = master_container.find_elements(By.XPATH, './/div[contains(@class, "list__container")]')
+
+                
+                #Navigate through the store container elements.
+
 
                 # Wait for the new page to load (you can adjust this as needed)
                 time.sleep(5)
