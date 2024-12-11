@@ -59,18 +59,21 @@ try:
                     EC.presence_of_element_located((By.XPATH, '//*[@id="default-wrapper"]/div/div/div/section[1]/div[2]/div[2]/div[3]/div[3]/div/div[1]'))
                 )
 
-                #Get the store elements content : nested in the master container
-                nested_elements = master_container.find_elements(By.XPATH, './/div[@data-test-id="store-content"]')
+                # #Get the store elements content : nested in the master container
+                # nested_elements = master_container.find_elements(By.XPATH, './/div[@data-test-id="store-content"]')
 
-                for element in nested_elements:
-                    list_containers = master_container.find_elements(By.XPATH, './/div[contains(@class, "list__container")]')
+                # for element in nested_elements:
+                #     list_containers = master_container.find_elements(By.XPATH, './/div[contains(@class, "list__container")]')
+                #     print(len(list_containers))
 
                 
-                #Navigate through the store container elements.
+                # #Navigate through the store container elements.
 
 
-                # Wait for the new page to load (you can adjust this as needed)
-                time.sleep(5)
+                # # Wait for the new page to load (you can adjust this as needed)
+                # time.sleep(5)
+
+                print(master_container)
 
                 # Go back to the previous page
                 driver.back()
